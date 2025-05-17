@@ -116,7 +116,7 @@ app.post("/tasks", async (req, res) => {
 
 app.get("/tasks", async (req, res) => {
   try {
-    const task = await Task.find(req.query);
+    const task = await Task.find(req.query).populate('owners').exec();
     if (task.length != 0) {
       res.json(task);
     } else {
