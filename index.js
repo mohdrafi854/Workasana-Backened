@@ -107,8 +107,25 @@ app.get("/auth/me", verifyJWT, async (req, res) => {
 
 app.post("/tasks", async (req, res) => {
   try {
-    const task = await new Task(req.body).save();
-    res.status(200).json({ message: "Task created successfully", task: task });
+    const { name, project, team, owner, timeToComplete, createdAt } = req.body;
+
+    if (!name || !project || !team || !owner || !timeToComplete) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    if (
+      !mongoose.Types.ObjectId.isValid(project) ||
+      !mongoose.Types.ObjectId.isValid(team) ||
+      !mongoose.Types.ObjectId.isValid(owner)
+    ) {
+      return res.status(400).json({ error: "Invalid ObjectId" });
+    }
+
+    const task = await Task.create(req.body);
+    await task.populate(["project", "team", "owner"]);
+    res.status(201).json({ message: "Task created successfully", task });
+
+    
   } catch (error) {
     res.status(500).json({ error: "Failed to add task" });
   }
@@ -116,7 +133,11 @@ app.post("/tasks", async (req, res) => {
 
 app.get("/tasks", async (req, res) => {
   try {
-    const task = await Task.find(req.query).populate('owners').populate('project').populate('team').exec();
+    const task = await Task.find(req.query)
+      .populate("owners")
+      .populate("project")
+      .populate("team")
+      .exec();
     if (task.length != 0) {
       res.json(task);
     } else {
