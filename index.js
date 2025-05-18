@@ -105,6 +105,15 @@ app.get("/auth/me", verifyJWT, async (req, res) => {
   }
 });
 
+app.get("/users", async() => {
+  try {
+    const users = await User.find()
+    res.json(users)
+  } catch (error) {
+    res.status(500).json({error : "Failed to fetch users"})
+  }
+})
+
 app.post("/tasks", async (req, res) => {
   try {
     const { name, project, team, owner, timeToComplete, createdAt } = req.body;
@@ -125,7 +134,7 @@ app.post("/tasks", async (req, res) => {
     await task.populate(["project", "team", "owner"]);
     res.status(201).json({ message: "Task created successfully", task });
 
-    
+
   } catch (error) {
     res.status(500).json({ error: "Failed to add task" });
   }
