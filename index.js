@@ -116,22 +116,26 @@ app.get("/users", async(req, res) => {
 
 app.post("/tasks", async (req, res) => {
   try {
-    const { name, project, team, owner, timeToComplete, createdAt } = req.body;
+    
+    const {name, project, team, owners, timeToComplete, createdAt} = req.body;
 
-    if (!name || !project || !team || !owner || !timeToComplete) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!name || !project || !team || !owners || !timeToComplete) {
+      res.status(400).json({ error: "Missing required fields" });
     }
 
-    if (
-      !mongoose.Types.ObjectId.isValid(project) ||
-      !mongoose.Types.ObjectId.isValid(team) ||
-      !mongoose.Types.ObjectId.isValid(owner)
-    ) {
-      return res.status(400).json({ error: "Invalid ObjectId" });
-    }
+    const taskData = {
+      name,
+      project,
+      team,
+      owners,
+      timeToComplete,
+      createdAt
+    };
 
-    const task = await Task.create(req.body);
-    await task.populate(["project", "team", "owner"]);
+    console.log("test", taskData)
+
+    const task = await Task.create(taskData);
+    await task.populate(["project", "team", "owners"]);
     res.status(201).json({ message: "Task created successfully", task });
 
 
