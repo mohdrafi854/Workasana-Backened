@@ -105,7 +105,7 @@ app.get("/auth/me", verifyJWT, async (req, res) => {
   }
 });
 
-app.get("/users", async() => {
+app.get("/users", async(req, res) => {
   try {
     const users = await User.find()
     res.json(users)
