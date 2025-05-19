@@ -192,8 +192,10 @@ app.delete("/tasks/:id", async (req, res) => {
 //Teams
 app.post("/teams", async (req, res) => {
   try {
-    const team = await new Team(req.body).save();
-    res.status(200).json({ message: "Team created successfully", team: team });
+    const {name, description, members} = req.body
+    const team = new Team({name, description: description || "", members: members || [],})
+    await team.save()
+    res.status(201).json({ message: "Team created successfully", team });
   } catch (error) {
     res.status(500).json({ error: "Failed to add team" });
   }
